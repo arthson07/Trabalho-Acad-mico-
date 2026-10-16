@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#101513">
+	<title>Pulse | Monitoramento do Data Center</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="./styles.css?v=11">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+	<script src="./monitoring.js?v=1" defer></script>
+	<script src="./app.js?v=11" defer></script>
+</head>
+<body data-view="overview">
+	<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+		<symbol id="icon-pulse" viewBox="0 0 24 24"><path d="M2 12h4l3-8 5 16 3-8h5"/></symbol>
+		<symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9zM9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></symbol>
+		<symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="8" rx="1.5"/><rect x="3" y="13" width="18" height="8" rx="1.5"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></symbol>
+		<symbol id="icon-server-offline" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="8" rx="1.5"/><rect x="3" y="13" width="18" height="8" rx="1.5"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h4m3-1 4 4m0-4-4 4"/></symbol>
+		<symbol id="icon-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+		<symbol id="icon-memory" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7V4m5 3V4m5 3V4M7 17v3m5-3v3m5-3v3M7 10h2v4H7zm5 0h2v4h-2zm5 0h2v4h-2z"/></symbol>
+		<symbol id="icon-storage" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8.5" ry="3"/><path d="M3.5 5v14c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3V5M3.5 12c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3"/></symbol>
+		<symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+		<symbol id="icon-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16.5 9"/></symbol>
+		<symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+		<symbol id="icon-location" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+		<symbol id="icon-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></symbol>
+		<symbol id="icon-dashboard" viewBox="0 0 24 24"><path d="M3 13a9 9 0 1 1 18 0v5H3zM12 13l4-4"/><path d="M7 18v-2m10 2v-2"/></symbol>
+		<symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8.5" ry="3"/><path d="M3.5 5v14c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3V5M3.5 12c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3"/></symbol>
+		<symbol id="icon-close" viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></symbol>
+		<symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+	</svg>
+	<div class="shell">
+		<aside class="offcanvas-lg offcanvas-start pulse-sidebar" tabindex="-1" id="primarySidebar" aria-labelledby="sidebarTitle">
+			<div class="sidebar-inner">
+				<div class="sidebar-head">
+					<a class="brand" id="sidebarTitle" href="#overview"><span class="brand-mark"><svg aria-hidden="true"><use href="#icon-pulse"/></svg></span><span>pulse<small>INFRASTRUCTURE</small></span></a>
+					<button class="sidebar-collapse-toggle" id="sidebarCollapseToggle" type="button" aria-label="Recolher menu lateral" aria-pressed="false" title="Recolher menu lateral"><span class="collapse-chevron" aria-hidden="true">‹</span></button>
+					<button class="sidebar-close" type="button" data-bs-dismiss="offcanvas" data-bs-target="#primarySidebar" aria-label="Fechar menu"><svg aria-hidden="true"><use href="#icon-close"/></svg></button>
+				</div>
+				<nav class="sidebar-nav" aria-label="Navegacao principal">
+					<div class="nav-label">Monitoramento</div>
+					<a class="sidebar-link active" href="#overview" aria-label="Visao geral" title="Visao geral" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg></span><span class="nav-text">Visao geral</span></a>
+					<a class="sidebar-link" href="#servers" aria-label="Servidores" title="Servidores"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="8" rx="1.5"/><rect x="3" y="13" width="18" height="8" rx="1.5"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></svg></span><span class="nav-text">Servidores</span></a>
+					<a class="sidebar-link" href="#storage" aria-label="Armazenamento" title="Armazenamento"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8.5" ry="3"/><path d="M3.5 5v14c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3V5M3.5 12c0 1.66 3.81 3 8.5 3s8.5-1.34 8.5-3"/></svg></span><span class="nav-text">Armazenamento</span></a>
+					<a class="sidebar-link" href="#alerts" aria-label="Alertas, 0 ativos" title="Alertas"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="nav-text">Alertas</span><span class="nav-count">00</span></a>
+				</nav>
+				<div class="site-card"><div class="eyebrow"><svg class="inline-icon" aria-hidden="true"><use href="#icon-database"/></svg> DATA CENTER</div><div class="site-name"><span class="site-dot"></span><span class="site-label">DC Sao Paulo 01</span></div><div class="site-meta"><svg class="inline-icon" aria-hidden="true"><use href="#icon-location"/></svg> Zona sul · Brasil</div></div>
+			</div>
+		</aside>
+
+		<main id="overview">
+			<header class="topbar">
+				<div class="topbar-context">
+					<button class="sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#primarySidebar" aria-controls="primarySidebar" aria-label="Abrir menu de navegacao"><span class="menu-toggle-icon" aria-hidden="true"></span></button>
+					<div class="breadcrumb"><svg class="inline-icon" aria-hidden="true"><use href="#icon-dashboard"/></svg> Infraestrutura <span> / </span> <strong id="currentBreadcrumb">Visao geral</strong></div>
+				</div>
+				<div class="top-actions"><div class="live-pill waiting"><span class="status-dot"></span>AGUARDANDO TELEMETRIA</div><a class="topbar-alert-link" href="#alerts" aria-label="Abrir alertas: 0 ativos"><span class="nav-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span>Alertas<span class="nav-count">00</span></a><button class="icon-button" id="notificationsButton" aria-label="Abrir notificacoes" title="Notificacoes" aria-haspopup="dialog" aria-controls="notificationsDialog"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="badge"></span></button><div class="avatar" aria-label="Usuario admin">AD</div></div>
+			</header>
+
+			<section class="page-heading">
+				<div><div class="overline"><svg class="inline-icon" aria-hidden="true"><use href="#icon-dashboard"/></svg> PAINEL DE CONTROLE / DC-SP01</div><h1 id="currentTitle">Visao geral</h1><p class="subtitle" id="currentSubtitle">Acompanhe a saude e o desempenho da sua infraestrutura.</p><p class="data-notice"><svg class="inline-icon" aria-hidden="true"><use href="#icon-alert"/></svg> Sem telemetria conectada · indicadores operacionais aguardando dados dos servidores.</p></div>
+				<div class="heading-meta"><svg class="inline-icon" aria-hidden="true"><use href="#icon-database"/></svg><span class="status-dot warning"></span><span>FONTE DE DADOS</span><span id="updatedAt">AGUARDANDO DADOS</span></div>
+			</section>
+
+			<section class="metrics" aria-label="Indicadores principais">
+				<article class="metric"><div class="metric-top"><span>Uso medio de CPU</span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-cpu"/></svg></span></div><div class="metric-value" id="cpuMetric">—</div><div class="metric-foot">Media dos servidores com sinal</div></article>
+				<article class="metric"><div class="metric-top"><span>Servidores com sinal</span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-server"/></svg></span></div><div class="metric-value online-count" id="onlineMetric">0<span class="metric-unit"> / 4</span></div><div class="metric-foot">Telemetria recente recebida</div></article>
+				<article class="metric"><div class="metric-top"><span>Servidores sem sinal</span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-server-offline"/></svg></span></div><div class="metric-value offline-count" id="offlineMetric">4</div><div class="metric-foot">Inclui servidores sem leitura inicial</div></article>
+				<article class="metric"><div class="metric-top"><span>Alertas ativos</span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-alert"/></svg></span></div><div class="metric-value" id="alertsMetric">0</div><div class="metric-foot">Calculados a partir da telemetria</div></article>
+				<article class="metric"><div class="metric-top"><span>Uso medio de memoria</span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-memory"/></svg></span></div><div class="metric-value" id="memoryMetric">—</div><div class="metric-foot">Media dos servidores com sinal</div></article>
+			</section>
+
+			<section id="performance" aria-labelledby="performanceTitle">
+				<div class="section-row"><div><h2 class="section-title" id="performanceTitle"><svg class="title-icon" aria-hidden="true"><use href="#icon-chart"/></svg>Desempenho da infraestrutura<span class="section-kicker">CPU · MEMORIA RAM</span></h2></div><div class="segmented" role="group" aria-label="Periodo do grafico"><button class="period-btn" data-period="1"><svg aria-hidden="true"><use href="#icon-clock"/></svg> 1H</button><button class="period-btn active" data-period="6"><svg aria-hidden="true"><use href="#icon-clock"/></svg> 6H</button><button class="period-btn" data-period="24"><svg aria-hidden="true"><use href="#icon-clock"/></svg> 24H</button></div></div>
+				<div class="chart-grid">
+					<article class="panel chart-panel resources-panel"><div class="panel-head"><div><h3 class="panel-title"><svg class="title-icon" aria-hidden="true"><use href="#icon-pulse"/></svg>Uso de recursos</h3><div class="panel-subtitle">Media dos servidores com telemetria recente · historico desta sessao</div></div><div class="legend"><span class="legend-item"><span class="legend-swatch"></span><svg class="legend-icon" aria-hidden="true"><use href="#icon-cpu"/></svg>CPU</span><span class="legend-item"><span class="legend-swatch ram"></span><svg class="legend-icon" aria-hidden="true"><use href="#icon-memory"/></svg>Memoria</span></div></div><div class="chart-box"><canvas id="performanceChart" aria-label="Grafico de uso de CPU e memoria RAM recebidos"></canvas></div></article>
+					<article class="panel chart-panel" id="storage" data-storage-status="unknown"><div class="panel-head"><div><h3 class="panel-title"><svg class="title-icon" aria-hidden="true"><use href="#icon-storage"/></svg>Armazenamento em disco</h3><div class="panel-subtitle">Ate 40 GB planejados · 4 discos de ate 10 GB</div></div><div class="storage-card-icons"><span class="storage-alert" id="storageAlert" role="img" aria-label="Alerta de armazenamento" title="Alerta de armazenamento" hidden><svg aria-hidden="true"><use href="#icon-alert"/></svg></span><span class="metric-symbol"><svg aria-hidden="true"><use href="#icon-storage"/></svg></span></div></div><div class="storage-body"><div class="donut-wrap"><canvas id="storageChart" aria-label="Grafico da capacidade de armazenamento medida"></canvas><div class="donut-center"><strong id="storagePercentage">—</strong><span>UTILIZADO</span><small class="storage-status" id="storageStatus" role="status">Aguardando telemetria</small></div></div><div class="storage-legend"><div class="storage-item"><span class="legend-swatch storage-used-swatch"></span><span class="storage-label">Uso reportado</span><span class="storage-value" id="storageUsed">—</span></div><div class="storage-item"><span class="legend-swatch storage-available-swatch"></span><span class="storage-label">Disponivel</span><span class="storage-value" id="storageAvailable">—</span></div><div class="storage-item"><span class="legend-swatch"></span><span class="storage-label">Capacidade reportada</span><span class="storage-value" id="storageCapacity">— / 40 GB max.</span></div></div></div></article>
+				</div>
+			</section>
+
+			<section class="lower-grid" id="operational-panels">
+				<article class="panel table-panel" id="servers"><div class="table-heading"><div><h2 class="section-title"><svg class="title-icon" aria-hidden="true"><use href="#icon-server"/></svg>Servidores</h2><div class="panel-subtitle">SERVIDORES RECEBENDO TELEMETRIA</div></div><button class="view-all" data-dialog="serversDialog" aria-haspopup="dialog" aria-controls="serversDialog"><svg aria-hidden="true"><use href="#icon-server"/></svg> VER TODOS <svg aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div><table><thead><tr><th><svg class="table-icon" aria-hidden="true"><use href="#icon-server"/></svg> Servidor</th><th><svg class="table-icon" aria-hidden="true"><use href="#icon-check-circle"/></svg> Status</th><th><svg class="table-icon" aria-hidden="true"><use href="#icon-cpu"/></svg> CPU</th><th><svg class="table-icon" aria-hidden="true"><use href="#icon-memory"/></svg> Memoria</th><th><svg class="table-icon" aria-hidden="true"><use href="#icon-storage"/></svg> Disco</th></tr></thead><tbody></tbody></table></article>
+				<article class="panel alerts-panel" id="alerts"><div class="table-heading"><div><h2 class="section-title"><svg class="title-icon" aria-hidden="true"><use href="#icon-alert"/></svg>Alertas recentes</h2><div class="panel-subtitle">Gerados com base nos dados recebidos</div></div><button class="view-all" data-dialog="alertsDialog" aria-haspopup="dialog" aria-controls="alertsDialog">00 ATIVOS</button></div><div class="alert-list"></div></article>
+			</section>
+			<footer class="footer-note"><span><svg class="inline-icon" aria-hidden="true"><use href="#icon-pulse"/></svg> PULSE MONITORING · DC-SP01</span><span><svg class="inline-icon" aria-hidden="true"><use href="#icon-database"/></svg> CAPACIDADE PLANEJADA · TELEMETRIA AGUARDANDO CONEXAO</span></footer>
+		</main>
+	</div>
+	<dialog id="notificationsDialog" aria-labelledby="notificationsTitle">
+		<div class="dialog-header"><div><h2 id="notificationsTitle"><svg class="title-icon" aria-hidden="true"><use href="#icon-alert"/></svg>Notificacoes</h2><p>Eventos recentes da infraestrutura</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar notificacoes"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+		<div class="dialog-content"><div class="dialog-list"></div><p class="dialog-note">Os alertas aparecem depois que uma integracao envia telemetria.</p></div>
+	</dialog>
+	<dialog id="serversDialog" aria-labelledby="serversDialogTitle">
+		<div class="dialog-header"><div><h2 id="serversDialogTitle"><svg class="title-icon" aria-hidden="true"><use href="#icon-server"/></svg>Servidores com telemetria</h2><p id="serversDialogSummary">0 de 4 servidores com sinal · DC Sao Paulo 01</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar inventario"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+		<div class="dialog-content"><div class="dialog-list" id="allServersList"></div></div>
+	</dialog>
+	<dialog id="alertsDialog" aria-labelledby="alertsDialogTitle">
+		<div class="dialog-header"><div><h2 id="alertsDialogTitle"><svg class="title-icon" aria-hidden="true"><use href="#icon-alert"/></svg>Alertas ativos</h2><p>0 eventos aguardam atencao</p></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar alertas"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+		<div class="dialog-content"><div class="dialog-list"></div></div>
+	</dialog>
+</body>
+</html>
